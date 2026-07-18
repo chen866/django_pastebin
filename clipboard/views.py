@@ -1,11 +1,10 @@
 from datetime import timedelta
 
 from django.db import IntegrityError
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from .models import Clipboard
+from .models import Clipboard, generate_short_id
 
 
 def create_snippet(request):
@@ -14,9 +13,9 @@ def create_snippet(request):
         {"value": "24", "label": "24 小时"},
         {"value": "168", "label": "7 天"},
         {"value": "720", "label": "30 天"},
-        {"value": "1440", "label": "2 个月"},
-        {"value": "2160", "label": "3 个月"},
-        {"value": "4320", "label": "6 个月"},
+        {"value": "1440", "label": "2 月"},
+        {"value": "2160", "label": "3 月"},
+        {"value": "4320", "label": "6 月"},
         {"value": "8640", "label": "1 年"},
     ]
     if request.method == "POST":
@@ -38,6 +37,8 @@ def create_snippet(request):
         MAX_RETRY_COUNT = 5
         for i in range(MAX_RETRY_COUNT):
             try:
+                if not slug:
+                    slug = generate_short_id()
                 snippet = Clipboard.objects.create(
                     slug=slug,
                     format_type=format_type,
