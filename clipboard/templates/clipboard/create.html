@@ -110,7 +110,7 @@
         
         <form method="post">
             {% csrf_token %}
-            <textarea name="content" rows="15" placeholder="在此粘贴你的代码或文本..." value="{% if form_data.content %}{{ form_data.content | default:'' }}{% endif %}" required></textarea>
+            <textarea name="content" rows="15" placeholder="在此粘贴你的代码或文本..." required>{{ form_data.content|default:'' }}</textarea>
             
             <div class="settings-group">
                 <label>格式:
