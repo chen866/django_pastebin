@@ -1,56 +1,136 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
+    <meta charset="UTF-8">
     <title>查看剪贴板</title>
-    <style>body { max-width: 800px; margin: 40px auto; font-family: sans-serif; }</style>
     <!-- 引入 GitHub 风格的 Markdown CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <!-- 引入 highlight.js 主题 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 850px;
+            margin: 40px auto;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 0 20px;
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: #eef2ff;
+            transition: background 0.2s;
+        }
+        
+        .btn-back:hover { background: #e0e7ff; }
+
+        .meta-info {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            background: var(--bg);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        .plain-text-wrapper {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: pre-wrap; 
+            word-wrap: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'create_snippet' %}">← 新建</a>
-        <span style="float:right; color:#666;">
-            过期时间: {{ snippet.expires_at|date:"Y-m-d H:i" }} 
-            (格式: {{ snippet.get_format_type_display }})
-        </span>
-    </div>
+    <div class="container">
+        <div class="header-nav">
+            <a href="{% url 'create_snippet' %}" class="btn-back">← 新建剪贴板</a>
+            <div class="meta-info">
+                <span>格式: {{ snippet.get_format_type_display }}</span> |
+                <span>过期时间: {{ snippet.expires_at|date:"Y-m-d H:i" }}</span>
+            </div>
+        </div>
 
-    <hr>
+        <hr>
 
-    {% if snippet.format_type == 'text' %}
-        <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ snippet.content }}</pre>
-    {% elif snippet.format_type == 'markdown' %}
-        <div id="raw-content" style="display:none;">{{ snippet.content|escape }}</div>
-        <div id="rendered-content" class="markdown-body"></div>
+        {% if snippet.format_type == 'text' %}
+            <pre class="plain-text-wrapper">{{ snippet.content }}</pre>
+        {% elif snippet.format_type == 'markdown' %}
+            <div id="raw-content" style="display:none;">{{ snippet.content|escape }}</div>
+            <div id="rendered-content" class="markdown-body"></div>
 
-        <!-- 引入依赖 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+            <!-- 引入依赖 -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var rawDiv = document.getElementById('raw-content');
-                var rawText = rawDiv.innerText || rawDiv.textContent;
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    var rawDiv = document.getElementById('raw-content');
+                    var rawText = rawDiv.innerText || rawDiv.textContent;
 
-                // 配置 marked 使用 highlight.js 
-                marked.setOptions({
-                    highlight: function(code, lang) {
-                        if (lang && hljs.getLanguage(lang)) {
-                            return hljs.highlight(code, { language: lang }).value;
+                    // 配置 marked 使用 highlight.js 
+                    marked.setOptions({
+                        highlight: function(code, lang) {
+                            if (lang && hljs.getLanguage(lang)) {
+                                return hljs.highlight(code, { language: lang }).value;
+                            }
+                            return hljs.highlightAuto(code).value;
                         }
-                        return hljs.highlightAuto(code).value;
-                    }
-                });
+                    });
 
-                var dirtyHtml = marked.parse(rawText);
-                var cleanHtml = DOMPurify.sanitize(dirtyHtml);
-                document.getElementById('rendered-content').innerHTML = cleanHtml;
-            });
-        </script>
-    {% endif %}
+                    var dirtyHtml = marked.parse(rawText);
+                    var cleanHtml = DOMPurify.sanitize(dirtyHtml);
+                    document.getElementById('rendered-content').innerHTML = cleanHtml;
+                });
+            </script>
+        {% endif %}
+    </div>
 </body>
 </html>

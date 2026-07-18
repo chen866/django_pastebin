@@ -18,12 +18,15 @@ def create_snippet(request):
         if not content:
             return render(request, "clipboard/create.html", {"error": "内容不能为空"})
 
+        slug_manual = True
         if not slug:
             slug = None
+            slug_manual = False
 
         expires_at = timezone.now() + timedelta(hours=expiry_hours)
 
-        while True:  # 如果slug已经存在，则重新生成一个
+        MAX_RETRY_COUNT = 5
+        for i in range(MAX_RETRY_COUNT):
             try:
                 snippet = Clipboard.objects.create(
                     slug=slug,
@@ -32,8 +35,16 @@ def create_snippet(request):
                     expires_at=expires_at,
                 )
                 break
-            except IntegrityError:
+            except IntegrityError as e:
+                if slug_manual:
+                    # 手动指定后缀时，如果slug已经存在，则抛出异常
+                    return render(request, "clipboard/create.html", {"error": f"后缀已存在，请重新输入。{e!r}"})
+                if i == MAX_RETRY_COUNT - 1:
+                    # 如果尝试了10次，仍然无法创建，则抛出异常
+                    return render(request, "clipboard/create.html", {"error": f"后缀无法创建，请重新输入。{e!r}"})
                 continue
+        else:
+            return render(request, "clipboard/create.html", {"error": "无法创建，请重新重试。"})
 
         return redirect("view_snippet", slug=snippet.slug)
 

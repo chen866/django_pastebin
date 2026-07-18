@@ -1,0 +1,100 @@
+<!-- templates/422.html -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>422 请求格式正确，但包含无效数据</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --error-text: #dc2626;
+            --error-bg: #fef2f2;
+            --error-border: #f87171;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 600px; /* 错误页面更适合窄一点的布局 */
+            margin: 80px auto;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            padding: 0 20px;
+            text-align: center; /* 内容居中 */
+        }
+
+        .container {
+            background: var(--surface);
+            padding: 40px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .error-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--error-text);
+            margin-bottom: 16px;
+        }
+
+        h2 { 
+            margin-top: 0; 
+            color: var(--text); 
+            font-size: 24px;
+            margin-bottom: 24px;
+        }
+
+        .error-message {
+            color: var(--error-text);
+            background: var(--error-bg);
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--error-border);
+            margin-bottom: 30px;
+            text-align: left; /* 错误详情保持左对齐以方便阅读 */
+            font-size: 15px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover { 
+            background-color: var(--primary-hover); 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 警告图标 -->
+        <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        
+        <h2>422 Unprocessable Entity</h2>
+        
+        <div class="error-message">
+            <strong>验证失败：</strong> {{ error_title }}
+        </div>
+        
+        <a href="javascript:history.back()" class="btn-back">返回上一页修改</a>
+    </div>
+</body>
+</html>
