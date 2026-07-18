@@ -114,24 +114,19 @@
             
             <div class="settings-group">
                 <label>格式:
-                    <select name="format_type">
-                        <option value="text">纯文本</option>
-                        <option value="markdown">Markdown</option>
+                    <select name="format_type" >
+                        <option value="text" {% if form_data.format_type == 'text' %}selected{% endif %}>纯文本</option>
+                        <option value="markdown" {% if form_data.format_type == 'markdown' %}selected{% endif %}>Markdown</option>
                     </select>
                 </label>
                 <label>后缀:
-                    <input type="text" name="slug" placeholder="可选自定义URL">
+                    <input type="text" name="slug" placeholder="可选自定义URL" value="{% if form_data.slug %}{{ form_data.slug | default:'' }}{% endif %}">
                 </label>
                 <label>过期时间:
                     <select name="expiry">
-                        <option value="1">1 小时</option>
-                        <option value="24" selected>24 小时</option>
-                        <option value="168">7 天</option>
-                        <option value="744">1 个月</option>
-                        <option value="1488">2 个月</option>
-                        <option value="2232">3 个月</option>
-                        <option value="4464">6 个月</option>
-                        <option value="8760">1 年</option>
+                        {% for choice in expiry_choices %}
+                            <option value="{{ choice.value }}" {% if form_data.expiry == choice.value %}selected{% endif %}>{{ choice.label }}</option>
+                        {% endfor %}
                     </select>
                 </label>
             </div>
