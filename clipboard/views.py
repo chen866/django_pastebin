@@ -52,10 +52,16 @@ def create_snippet(request):
 
 
 def view_snippet(request, slug):
-    snippet = get_object_or_404(Clipboard, slug=slug)
+    snippet = Clipboard.objects.filter(slug=slug).first()
+    if not snippet:
+        return render(
+            request, "422.html", {"error_title": f"该内容不存在：{slug}", "error_message": f"该内容不存在：{slug}"}
+        )
 
     if snippet.is_expired():
         snippet.delete()
-        raise Http404("该内容已过期并被永久销毁。")
+        return render(
+            request, "422.html", {"error_title": f"该内容已过期：{slug}", "error_message": f"该内容已过期：{slug}"}
+        )
 
     return render(request, "clipboard/view.html", {"snippet": snippet})

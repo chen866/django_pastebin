@@ -1,9 +1,8 @@
-<!-- templates/422.html -->
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>422 请求格式正确，但包含无效数据</title>
+    <title>{{ error_title }}</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -88,10 +87,10 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
         
-        <h2>422 Unprocessable Entity</h2>
+        <h2>{{ error_title }}</h2>
         
         <div class="error-message">
-            <strong>验证失败：</strong> {{ error_title }}
+            {{ error_message }}
         </div>
         
         <a href="javascript:history.back()" class="btn-back">返回上一页修改</a>
