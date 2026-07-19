@@ -10,14 +10,15 @@ from .models import Clipboard, generate_short_id
 
 def create_snippet(request):
     expiry_choices = [
-        {"value": "1", "label": "1 小时"},
-        {"value": "24", "label": "24 小时"},
-        {"value": "168", "label": "7 天"},
-        {"value": "720", "label": "30 天"},
-        {"value": "1440", "label": "2 月"},
-        {"value": "2160", "label": "3 月"},
-        {"value": "4320", "label": "6 月"},
-        {"value": "8640", "label": "1 年"},
+        {"value": 1, "label": "1 小时"},
+        {"value": 24, "label": "24 小时"},
+        {"value": 24 * 7, "label": "7 天"},
+        {"value": 24 * 31, "label": "1 个月"},
+        {"value": 24 * (31 * 2), "label": "2 个月"},
+        {"value": 24 * (30 * 3 + 2), "label": "3 个月"},
+        {"value": 24 * (30 * 6 + 3), "label": "6 个月"},
+        {"value": 24 * 365, "label": "1 年"},
+        {"value": 24 * (365 * 2), "label": "2 年"},
     ]
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
