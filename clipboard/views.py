@@ -26,6 +26,7 @@ def create_snippet(request):
         {"value": 24 * 365, "label": "1 年"},
         {"value": 24 * (365 * 2), "label": "2 年"},
     ]
+    EXPIRY_DEFAULT = 24 * (31 * 1)  # 默认 1 个月
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
         slug = request.POST.get("slug", "").strip()
@@ -77,7 +78,11 @@ def create_snippet(request):
         return redirect("view_snippet", slug=snippet.slug)
 
     # 未提交表单，则渲染创建页面
-    return render(request, "clipboard/create.html", {"expiry_choices": EXPIRY_CHOICES})
+    return render(
+        request,
+        "clipboard/create.html",
+        {"expiry_choices": EXPIRY_CHOICES, "form_data": {"expiry": EXPIRY_DEFAULT}},
+    )
 
 
 def view_snippet(request, slug):
