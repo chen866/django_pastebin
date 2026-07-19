@@ -35,6 +35,30 @@
         }
 
         h2 { margin-top: 0; color: var(--text); }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn-list {
+            background-color: var(--surface);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-list:hover {
+            background-color: var(--primary);
+            color: white;
+        }
         .error { color: #dc2626; background: #fef2f2; padding: 10px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f87171; }
         
         textarea {
@@ -103,7 +127,10 @@
 </head>
 <body>
     <div class="container">
-        <h2>新建剪贴板</h2>
+        <div class="header-row">
+            <h2>新建剪贴板</h2>
+            <a href="{% url 'list_snippets' %}" class="btn-list">查看列表</a>
+        </div>
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}

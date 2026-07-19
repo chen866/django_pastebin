@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -96,3 +97,10 @@ def view_snippet(request, slug):
         )
 
     return render(request, "clipboard/view.html", {"snippet": snippet})
+
+
+@login_required(login_url="/admin/login/")
+@permission_required("clipboard.view_clipboard", login_url="/admin/login/")
+def list_snippets(request):
+    snippets = Clipboard.objects.all().order_by("-created_at")[:100]
+    return render(request, "clipboard/list.html", {"snippets": snippets})
