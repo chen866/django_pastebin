@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>查看剪贴板</title>
+    <title>查看文本</title>
     <!-- 引入 GitHub 风格的 Markdown CSS -->
     <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <!-- 引入 highlight.js 主题 -->
@@ -90,7 +90,7 @@
 <body>
     <div class="container">
         <div class="header-nav">
-            <a href="{% url 'create_snippet' %}" class="btn-back">← 新建剪贴板</a>
+            <a href="{% url 'create_snippet' %}" class="btn-back">← 新建文本</a>
             <div class="meta-info">
                 <span>格式: {{ snippet.get_format_type_display }}</span> |
                 <span>过期时间: {{ snippet.expires_at|date:"Y-m-d H:i" }}</span>
