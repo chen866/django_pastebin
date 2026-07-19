@@ -22,7 +22,7 @@ from django.views.generic import RedirectView
 from django.views.static import serve
 
 urlpatterns = [
-    path("ad/", admin.site.urls),
+    path("admin/", admin.site.urls),
     path("c/", include("clipboard.urls")),
     path("", RedirectView.as_view(url="/c/")),
     path(r"static/<path:path>", serve, {"document_root": settings.STATIC_ROOT}),
