@@ -1,0 +1,89 @@
+<div class="comment-form-section">
+    <h4>发表评论</h4>
+    {% if request.user.is_authenticated %}
+        <form id="comment-form" class="comment-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <textarea 
+                    id="comment-content"
+                    name="content" 
+                    placeholder="写下你的评论..." 
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+            <button type="submit" class="btn-submit">提交评论</button>
+        </form>
+        <p id="comment-error" style="color: #dc2626; margin-top: 10px; display: none;"></p>
+        <p id="comment-success" style="color: #16a34a; margin-top: 10px; display: none;"></p>
+    {% else %}
+        <p class="login-prompt">
+            请 <a href="/admin/login/?next={{ request.path }}">登录</a> 后发表评论
+        </p>
+    {% endif %}
+</div>
+
+{% if request.user.is_authenticated %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('comment-form');
+    const contentInput = document.getElementById('comment-content');
+    const errorMsg = document.getElementById('comment-error');
+    const successMsg = document.getElementById('comment-success');
+    const slug = "{{ snippet.slug }}";
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const content = contentInput.value.trim();
+        if (!content) {
+            errorMsg.textContent = '评论内容不能为空';
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+            return;
+        }
+        
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+        
+        const formData = new FormData();
+        formData.append('content', content);
+        
+        // 获取 CSRF token from form
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        fetch(`/c/${slug}/comments/post/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                errorMsg.textContent = data.error;
+                errorMsg.style.display = 'block';
+            } else {
+                contentInput.value = '';
+                successMsg.textContent = '评论发表成功！';
+                successMsg.style.display = 'block';
+                // 刷新评论列表
+                if (window.reloadComments) {
+                    window.reloadComments();
+                }
+                // 3秒后隐藏成功消息
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            errorMsg.textContent = '提交失败，请重试';
+            errorMsg.style.display = 'block';
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
+{% endif %}

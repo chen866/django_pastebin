@@ -85,6 +85,121 @@
             font-size: 14px;
             line-height: 1.6;
         }
+
+        /* 评论区域样式 */
+        .comments-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .comments-section h3 {
+            color: var(--text);
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .comment-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 15px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .comment-date {
+            color: var(--text-muted);
+            font-size: 0.85em;
+        }
+
+        .comment-body {
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .no-comments {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .comment-form-section {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .comment-form-section h4 {
+            margin: 0 0 15px 0;
+            color: var(--text);
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn-submit {
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #4338ca;
+        }
+
+        .login-prompt {
+            color: var(--text-muted);
+        }
+
+        .login-prompt a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .login-prompt a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +246,11 @@
                 });
             </script>
         {% endif %}
+
+        <div id="comments-wrapper">
+            {% include "clipboard/comments.html" %}
+            {% include "clipboard/comment_form.html" %}
+        </div>
     </div>
 </body>
 </html>

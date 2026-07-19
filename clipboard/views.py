@@ -2,10 +2,12 @@ from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import IntegrityError
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_http_methods
 
-from .models import Clipboard, generate_short_id
+from .models import Clipboard, Comment, generate_short_id
 
 
 def error_422(request, title, message):
@@ -107,3 +109,49 @@ def delete_snippet(request, slug):
     if snippet:
         snippet.delete()
     return redirect("list_snippets")
+
+
+@require_http_methods(["GET"])
+def list_comments(request, slug):
+    clipboard = get_object_or_404(Clipboard, slug=slug)
+    if clipboard.is_expired():
+        return JsonResponse({"error": "This snippet has expired"}, status=410)
+    
+    comments = clipboard.comments.all()
+    data = [
+        {
+            "id": c.id,
+            "user": c.user.username,
+            "content": c.content,
+            "created_at": c.created_at.isoformat(),
+        }
+        for c in comments
+    ]
+    return JsonResponse({"comments": data})
+
+
+@login_required
+@require_http_methods(["POST"])
+def post_comment(request, slug):
+    clipboard = get_object_or_404(Clipboard, slug=slug)
+    if clipboard.is_expired():
+        return JsonResponse({"error": "This snippet has expired"}, status=410)
+    
+    content = request.POST.get("content", "").strip()
+    if not content:
+        return JsonResponse({"error": "Comment cannot be empty"}, status=400)
+    
+    comment = Comment.objects.create(
+        content_object=clipboard,
+        user=request.user,
+        content=content,
+    )
+    return JsonResponse(
+        {
+            "id": comment.id,
+            "user": comment.user.username,
+            "content": comment.content,
+            "created_at": comment.created_at.isoformat(),
+        },
+        status=201,
+    )
