@@ -138,6 +138,27 @@
             font-size: 13px;
         }
 
+        .btn-delete {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-delete:hover {
+            background-color: #fee2e2;
+            border-color: #f87171;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -161,6 +182,9 @@
                         <th>格式</th>
                         <th>创建时间</th>
                         <th>过期时间</th>
+                        {% if has_delete_permission %}
+                        <th>操作</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -191,6 +215,11 @@
                                     <span class="datetime">永不过期</span>
                                 {% endif %}
                             </td>
+                            {% if has_delete_permission %}
+                            <td>
+                                <a href="{% url 'delete_snippet' snippet.slug %}" class="btn-delete" onclick="return confirm('确定要删除该文本吗？');">删除</a>
+                            </td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>

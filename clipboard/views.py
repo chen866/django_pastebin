@@ -104,4 +104,16 @@ def view_snippet(request, slug):
 @permission_required("clipboard.view_clipboard", login_url="/admin/login/")
 def list_snippets(request):
     snippets = Clipboard.objects.all().order_by("-created_at")[:100]
-    return render(request, "clipboard/list.html", {"snippets": snippets})
+    has_delete_permission = request.user.has_perm("clipboard.delete_clipboard")
+    return render(
+        request, "clipboard/list.html", {"snippets": snippets, "has_delete_permission": has_delete_permission}
+    )
+
+
+@login_required(login_url="/admin/login/")
+@permission_required("clipboard.delete_clipboard", login_url="/admin/login/")
+def delete_snippet(request, slug):
+    snippet = Clipboard.objects.filter(slug=slug).first()
+    if snippet:
+        snippet.delete()
+    return redirect("list_snippets")
