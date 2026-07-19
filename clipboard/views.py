@@ -8,8 +8,12 @@ from django.utils import timezone
 from .models import Clipboard, generate_short_id
 
 
+def error_422(request, title, message):
+    return render(request, "422.html", {"error_title": title, "error_message": message})
+
+
 def create_snippet(request):
-    expiry_choices = [
+    EXPIRY_CHOICES = [
         {"value": 1, "label": "1 小时"},
         {"value": 24, "label": "24 小时"},
         {"value": 24 * 7, "label": "7 天"},
@@ -26,8 +30,19 @@ def create_snippet(request):
         format_type = request.POST.get("format_type", "text")
         expiry_hours = int(request.POST.get("expiry", 24))
 
+        def _render_create_error(request, error_message, form_data=None):
+            return render(
+                request,
+                "clipboard/create.html",
+                {
+                    "error": error_message,
+                    "form_data": form_data or request.POST,
+                    "expiry_choices": EXPIRY_CHOICES,
+                },
+            )
+
         if not content:
-            return render(request, "clipboard/create.html", {"error": "内容不能为空"})
+            return _render_create_error(request, "内容不能为空")
 
         slug_manual = True
         if not slug:
@@ -50,52 +65,27 @@ def create_snippet(request):
                 break
             except IntegrityError as e:
                 if slug_manual:
-                    # 手动指定后缀时，如果slug已经存在，则抛出异常
-                    return render(
-                        request,
-                        "clipboard/create.html",
-                        {
-                            "error": f"后缀已存在，请重新输入。{e!r}",
-                            "form_data": request.POST,
-                            "expiry_choices": expiry_choices,
-                        },
-                    )
+                    return _render_create_error(request, f"后缀已存在，请重新输入。{e!r}")
                 if i == MAX_RETRY_COUNT - 1:
-                    # 如果尝试了10次，仍然无法创建，则抛出异常
-                    return render(
-                        request,
-                        "clipboard/create.html",
-                        {
-                            "error": f"后缀无法创建，请重新输入。{e!r}",
-                            "form_data": request.POST,
-                            "expiry_choices": expiry_choices,
-                        },
-                    )
+                    return _render_create_error(request, f"后缀无法创建，请重新输入。{e!r}")
                 continue
         else:
-            return render(
-                request,
-                "clipboard/create.html",
-                {"error": "无法创建，请重新重试。", "form_data": request.POST, "expiry_choices": expiry_choices},
-            )
+            return _render_create_error(request, "无法创建，请重新重试。")
 
         return redirect("view_snippet", slug=snippet.slug)
 
-    return render(request, "clipboard/create.html", {"expiry_choices": expiry_choices})
+    # 未提交表单，则渲染创建页面
+    return render(request, "clipboard/create.html", {"expiry_choices": EXPIRY_CHOICES})
 
 
 def view_snippet(request, slug):
     snippet = Clipboard.objects.filter(slug=slug).first()
     if not snippet:
-        return render(
-            request, "422.html", {"error_title": f"该内容不存在：{slug}", "error_message": f"该内容不存在：{slug}"}
-        )
+        return error_422(request, f"该内容不存在：{slug}", f"该内容不存在：{slug}")
 
     if snippet.is_expired():
         snippet.delete()
-        return render(
-            request, "422.html", {"error_title": f"该内容已过期：{slug}", "error_message": f"该内容已过期：{slug}"}
-        )
+        return error_422(request, f"该内容已过期：{slug}", f"该内容已过期：{slug}")
 
     return render(request, "clipboard/view.html", {"snippet": snippet})
 
