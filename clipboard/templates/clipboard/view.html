@@ -5,8 +5,10 @@
     <title>查看文本</title>
     <!-- 引入 GitHub 风格的 Markdown CSS -->
     <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
-    <!-- 引入 highlight.js 主题 -->
-    <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <!-- 引入 Prism.js 主题 (VSCode Light+) -->
+    <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/prism-themes/1.9.0/prism-vs.min.css">
+    <!-- 引入 Prism.js 插件样式 -->
+    <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
     
     <style>
         :root {
@@ -200,6 +202,35 @@
         .login-prompt a:hover {
             text-decoration: underline;
         }
+
+        /* Markdown 代码块增强样式 */
+        .markdown-body pre[class*="language-"] {
+            border-radius: 6px;
+            margin: 1em 0;
+        }
+
+        .markdown-body code[class*="language-"] {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Prism 复制按钮样式微调 */
+        .markdown-body pre[class*="language-"]::before {
+            content: none;
+        }
+
+        /* 行号样式美化 */
+        .markdown-body pre.line-numbers {
+            position: relative;
+            padding-left: 3.8em;
+            counter-reset: linenumber;
+        }
+
+        .markdown-body pre.line-numbers > code {
+            position: relative;
+            white-space: inherit;
+        }
     </style>
 </head>
 <body>
@@ -223,27 +254,59 @@
             <!-- 引入依赖 -->
             <script src="https://s4.zstatic.net/ajax/libs/marked/4.3.0/marked.min.js"></script>
             <script src="https://s4.zstatic.net/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+            <!-- Prism.js 核心 + 常用语言 + 复制插件 -->
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/prism.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-tsx.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+            <!-- Prism.js 插件 -->
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/show-language/prism-show-language.min.js"></script>
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     var rawDiv = document.getElementById('raw-content');
                     var rawText = rawDiv.innerText || rawDiv.textContent;
 
-                    // 配置 marked 使用 highlight.js 
-                    marked.setOptions({
-                        highlight: function(code, lang) {
-                            if (lang && hljs.getLanguage(lang)) {
-                                return hljs.highlight(code, { language: lang }).value;
-                            }
-                            return hljs.highlightAuto(code).value;
-                        }
-                    });
+                    // 自定义渲染器：给代码块添加 line-numbers 类
+                    const renderer = new marked.Renderer();
+                    renderer.code = function(code, language) {
+                        const lang = language || 'text';
+                        return `<pre class="line-numbers" data-language="${lang}"><code class="language-${lang}">${escapeHtml(code)}</code></pre>`;
+                    };
+
+                    marked.setOptions({ renderer: renderer });
 
                     var dirtyHtml = marked.parse(rawText);
-                    var cleanHtml = DOMPurify.sanitize(dirtyHtml);
+                    var cleanHtml = DOMPurify.sanitize(dirtyHtml, {
+                        ADD_TAGS: ['pre', 'code'],
+                        ADD_ATTR: ['class', 'data-language']
+                    });
                     document.getElementById('rendered-content').innerHTML = cleanHtml;
+
+                    Prism.highlightAll();
                 });
+
+                function escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
             </script>
         {% endif %}
 
