@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/prism-themes/1.9.0/prism-vs.min.css">
     <!-- 引入 Prism.js 插件样式 -->
     <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+    <link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
     
     <style>
         :root {
@@ -231,6 +232,55 @@
             position: relative;
             white-space: inherit;
         }
+
+        /* Toolbar 包装器样式 */
+        .markdown-body div.code-toolbar {
+            position: relative;
+            margin: 1em 0;
+        }
+
+        /* 工具栏按钮样式美化 */
+        .markdown-body div.code-toolbar > .toolbar {
+            position: absolute;
+            top: 0.5em;
+            right: 0.5em;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        .markdown-body div.code-toolbar > .toolbar:hover {
+            opacity: 1;
+        }
+
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item > button,
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item > span {
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item > button:hover,
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item > span:hover {
+            background: rgba(255, 255, 255, 1);
+            color: #000;
+        }
+
+        /* 语言标签样式 */
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item.toolbar-item-language > span {
+            background: rgba(79, 70, 229, 0.9);
+            color: white;
+            border: none;
+            font-weight: 500;
+        }
+
+        .markdown-body div.code-toolbar > .toolbar > .toolbar-item.toolbar-item-language > span:hover {
+            background: rgba(79, 70, 229, 1);
+        }
     </style>
 </head>
 <body>
@@ -254,27 +304,13 @@
             <!-- 引入依赖 -->
             <script src="https://s4.zstatic.net/ajax/libs/marked/4.3.0/marked.min.js"></script>
             <script src="https://s4.zstatic.net/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
-            <!-- Prism.js 核心 + 常用语言 + 复制插件 -->
+            <!-- Prism.js 核心 + Autoloader 插件（按需自动加载语言包） -->
             <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/prism.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-tsx.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
-            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+            <!-- Prism.js Toolbar 插件（其他 UI 插件依赖它，必须优先加载） -->
+            <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+            <!-- Prism.js UI 交互类插件 -->
             <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
-            <!-- Prism.js 插件 -->
             <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
             <script src="https://s4.zstatic.net/ajax/libs/prism/1.29.0/plugins/show-language/prism-show-language.min.js"></script>
 
@@ -299,7 +335,10 @@
                     });
                     document.getElementById('rendered-content').innerHTML = cleanHtml;
 
-                    Prism.highlightAll();
+                    // 遍历每个代码块，Autoloader 会自动拦截并按需加载语言包
+                    document.querySelectorAll('#rendered-content pre[data-language] code').forEach(function (block) {
+                        Prism.highlightElement(block);
+                    });
                 });
 
                 function escapeHtml(text) {
