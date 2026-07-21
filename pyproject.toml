@@ -12,7 +12,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["django-stubs>=6.0.7", "ruff>=0.15.22"]
+dev = [
+    "django-stubs>=6.0.7",
+    "ruff>=0.15.22",
+]
 
 [tool.ruff]
 line-length = 120
