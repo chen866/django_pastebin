@@ -18,13 +18,17 @@ WORKDIR /app
 
 RUN useradd --create-home --shell /bin/bash app
 
-# Copy the full builder output (source code + .venv) in one shot.
-COPY --from=builder --chown=app:app /app /app
+# Copy the full builder output (source code + .venv) in one shot,
+# owned by root so collectstatic can write to /app/staticfiles.
+COPY --from=builder /app /app
+
+# collectstatic is run at build time as root (before USER app) so it can
+# create /app/staticfiles, then we hand ownership off to the app user.
+RUN python manage.py collectstatic --noinput && \
+    chown -R app:app /app
+
 USER app
 
 EXPOSE 8000
-
-# collectstatic is run at build time so the image is ready to serve
-RUN python manage.py collectstatic --noinput
 
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
