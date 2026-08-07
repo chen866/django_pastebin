@@ -12,11 +12,13 @@ RUN uv sync --frozen --no-dev
 FROM python:3.14-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=config.settings \
-    PORT=8000
+    PORT=8000 \
+    PATH="/app/.venv/bin:$PATH"
 WORKDIR /app
 
 RUN useradd --create-home --shell /bin/bash app
 
+# Copy the full builder output (source code + .venv) in one shot.
 COPY --from=builder --chown=app:app /app /app
 USER app
 
